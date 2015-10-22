@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    <!--
+        Floppy Pop
+        Browser game based on the Android 5.0 easter egg.
+    -->
+
+    <link rel="stylesheet" type="text/css" href="/assets/css/layout.css" /> 
+    <title>Floppy Pop</title>
+</head>
+<body>
+    <div id="game" style="position: relative; height: 100%; overflow: hidden">
+        
+    </div>
+    
+    <script src="/assets/js/game.js"></script>
+    <script>
+        //(new FloppyPop('#id')).init();
+        var floppyPop = new FloppyPop({
+            element: '#game',
+            clouds: 15,
+            stars: 10
+        });
+
+        floppyPop.init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+/src/
+*.sublime-project
+*.sublime-workspace
+mongoose.exe
