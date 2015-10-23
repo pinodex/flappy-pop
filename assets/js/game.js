@@ -17,6 +17,8 @@ var FloppyPop = function(config) {
     this.clouds = config.clouds;
     this.stars = config.stars;
 
+    this.popInsertion = true;
+
     this.init = function() {
         this.viewElement.innerHTML = '';
 
@@ -124,9 +126,9 @@ var FloppyPop = function(config) {
         var clouds = this.viewElement.querySelectorAll('.sky.cloud');
 
         for (var i = clouds.length - 1; i >= 0; i--) {
-            var rect = clouds[i].getBoundingClientRect()
+            var rect = clouds[i].getBoundingClientRect();
 
-            clouds[i].style.left = (rect.left - 0.5) + 'px';
+            clouds[i].style.left = (rect.left - (i % 2 == 0 ? 0.75 : 0.5)) + 'px';
 
             if (rect.left < -100) {
                 clouds[i].style.left = '100%';
@@ -137,6 +139,12 @@ var FloppyPop = function(config) {
     };
 
     this.insertPop = function() {
+        if (!this.popInsertion) {
+            return;
+        }
+
+        this.preventPopInsert();
+
         var topPopType = POPS[Util.rand(0, POPS.length - 1)];
         var bottomPopType = POPS[Util.rand(0, POPS.length - 1)];
 
@@ -175,7 +183,15 @@ var FloppyPop = function(config) {
             };
         }, 100);
 
-        setTimeout(this.insertPop.bind(this), 8000);
+        setTimeout(this.allowPopInsert.bind(this), 1000);
+    };
+
+    this.preventPopInsert = function() {
+        this.popInsertion = false;
+    };
+
+    this.allowPopInsert = function() {
+        this.popInsertion = true;
     };
 
     this.animatePops = function() {
@@ -186,8 +202,12 @@ var FloppyPop = function(config) {
 
             popContainers[i].style.left = (rect.left - 2) + 'px';
 
-            if (rect.left < -150) {
-                this.viewElement.removeChild(popContainers[i]);
+            if (rect.left < -100) {
+                this.insertPop();
+
+                if (rect.left < -150) {
+                    this.viewElement.removeChild(popContainers[i]);
+                }
             }
         };
 
