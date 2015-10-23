@@ -4,26 +4,26 @@
     <meta charset="utf-8" />
 
     <!--
-        Floppy Pop
+        Flappy Pop
         Browser game based on the Android 5.0 easter egg.
     -->
 
     <link rel="stylesheet" type="text/css" href="assets/css/layout.css" /> 
-    <title>Floppy Pop</title>
+    <title>Flappy Pop</title>
 </head>
 <body>
-    <div id="game" style="position: relative; height: 100%; overflow: hidden"></div>
+    <div id="game" tabindex="-1"></div>
     
     <script src="assets/js/game.js"></script>
     <script>
-        //(new FloppyPop('#id')).init();
-        var floppyPop = new FloppyPop({
+        //(new FlappyPop('#id')).init();
+        var flappyPop = new FlappyPop({
             element: '#game',
             clouds: 15,
             stars: 10
         });
 
-        floppyPop.init();
+        flappyPop.init();
     </script>
 </body>
 </html>

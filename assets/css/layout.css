@@ -4,8 +4,20 @@ html, body {
     height: 100%;
 }
 
-body {
-    background: #000;
+.preload {
+    font-size: 26px;
+    margin: 20px;
+}
+
+.instruction {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    margin: 200px auto;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 36px;
+    color: #fff;
+    z-index: 9999;
 }
 
 .bg {
@@ -70,6 +82,21 @@ body {
 
 .sky.android {
     background-image: url('../img/android.png');
+    height: 64px;
+    width: 64px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 9999;
+    -webkit-transform: rotate(30deg);
+    -moz-transform: rotate(30deg);
+    -o-transform: rotate(30deg);
+    transform: rotate(30deg);
+}
+
+.sky.android.half_margined {
+    margin-top: -32px;
+    margin-left: -32px;
 }
 
 .sky.moon {
@@ -158,15 +185,22 @@ body {
 }
 
 .rotate {
-    -webkit-animation: spin 5s linear infinite;
-    -moz-animation: spin 5s linear infinite;
-    -o-animation: spin 5s linear infinite;
+    -webkit-animation: spin 10s linear infinite;
+    -moz-animation: spin 10s linear infinite;
+    -o-animation: spin 10s linear infinite;
     animation: spin 10s linear infinite;
+}
+
+.tilt {
+    -webkit-animation: tilt 1s linear;
+    -moz-animation: tilt 1s linear;
+    -o-animation: tilt 1s linear;
+    animation: tilt 1s linear;
 }
 
 @-o-keyframes spin {
     100% {
-        -o`-transform: rotate(360deg);
+        -o-transform: rotate(360deg);
     }
 }
 
@@ -186,5 +220,30 @@ body {
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
+    }
+}
+
+@-o-keyframes tilt {
+    100% {
+        -o-transform: rotate(85deg);
+    }
+}
+
+@-moz-keyframes tilt {
+    100% {
+        -moz-transform: rotate(85deg);
+    }
+}
+
+@-webkit-keyframes tilt {
+    100% {
+        -webkit-transform: rotate(85deg);
+    }
+}
+
+@keyframes tilt {
+    100% {
+        -webkit-transform: rotate(85deg);
+        transform: rotate(85deg);
     }
 }

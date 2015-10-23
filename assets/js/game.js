@@ -1,15 +1,37 @@
 /*!
- * Floppy Pop
+ * Flappy Pop
  * Browser game based on Android 5.0 easter egg.
  * 
  * Copyright 2015, Raphael Marco
  */
 
-var FloppyPop = function(config) {
+var FlappyPop = function(config) {
+
+    var PRELOAD_IMAGES = [
+        'assets/img/android.png',
+        'assets/img/cloud.png',
+        'assets/img/moon.png',
+        'assets/img/pop_belt.png',
+        'assets/img/pop_droid.png',
+        'assets/img/pop_pizza.png',
+        'assets/img/pop_swirl.png',
+        'assets/img/pop_vortex.png',
+        'assets/img/pop_vortex2.png',
+        'assets/img/star.png',
+        'assets/img/sun.png'
+    ];
 
     var SCENE_SUNRISE = 1, SCENE_NOON = 2, SCENE_SUNSET = 3, SCENE_NIGHT = 4;
     var POPS = ['belt', 'droid', 'pizza', 'stripes', 'swirl', 'vortex', 'vortex2'];
     var ROTATING_POPS = ['pizza', 'swirl', 'vortex', 'vortex2'];
+    
+    var PRELOADED = false;
+    var INITIALIZED = false;
+    var ELEMENTS_INSERTED = false;
+    var POP_INSERTION = true;
+    var FLAP_START_COUNT = 0;
+    var FLAP_MAX_STRENGTH = 30;
+    var FLAP_INTERVAL = null;
 
     this.viewElement = document.querySelector(config.element);
     this.scene = 0;
@@ -17,16 +39,37 @@ var FloppyPop = function(config) {
     this.clouds = config.clouds;
     this.stars = config.stars;
 
-    this.popInsertion = true;
-
     this.init = function() {
-        this.viewElement.innerHTML = '';
+        if (INITIALIZED) {
+            return;
+        }
+
+        if (!PRELOADED) {
+            this.viewElement.innerHTML = '<div class="preload">Loading assets...</div>';
+
+            for (var i = 0; i < PRELOAD_IMAGES.length; i++) {
+                (new Image()).src = PRELOAD_IMAGES[i];
+
+                if (i == PRELOAD_IMAGES.length - 1) {
+                    PRELOADED = true;
+                    this.init();
+                }
+            };
+        }
+
+        this.viewElement.innerHTML = '<div class="instruction">Click to start</div>';
+
+        this.viewElement.setAttribute('tabindex', '-1');
+        this.viewElement.style.position = 'relative';
+        this.viewElement.style.height = '100%';
+        this.viewElement.style.overflow = 'hidden';
 
         this.initBg();
         this.initSky();
+
         this.animatePops();
 
-        this.insertPop();
+        INITIALIZED = true;
     };
 
     this.initBg = function() {
@@ -56,7 +99,7 @@ var FloppyPop = function(config) {
             this.viewElement.innerHTML += '<div class="bg"></div>';
         }
 
-        this.viewElement.querySelector('.bg').className = 'bg ' + bgClass;
+        this.viewElement.querySelector('.bg').classList.add(bgClass);
     };
 
     this.initSky = function() {
@@ -139,7 +182,7 @@ var FloppyPop = function(config) {
     };
 
     this.insertPop = function() {
-        if (!this.popInsertion) {
+        if (!POP_INSERTION) {
             return;
         }
 
@@ -179,7 +222,7 @@ var FloppyPop = function(config) {
 
         setTimeout(function() {
             for (var i = nsElements.length - 1; i >= 0; i--) {
-                nsElements[i].className += ' shown';
+                nsElements[i].classList.add('shown');
             };
         }, 100);
 
@@ -187,11 +230,11 @@ var FloppyPop = function(config) {
     };
 
     this.preventPopInsert = function() {
-        this.popInsertion = false;
+        POP_INSERTION = false;
     };
 
     this.allowPopInsert = function() {
-        this.popInsertion = true;
+        POP_INSERTION = true;
     };
 
     this.animatePops = function() {
@@ -213,6 +256,77 @@ var FloppyPop = function(config) {
 
         requestAnimationFrame(this.animatePops.bind(this));
     };
+
+    this.insertAndroid = function() {
+        if (this.viewElement.querySelector('.sky.android')) {
+            return;
+        }
+        
+        this.viewElement.innerHTML += '<div class="sky android half_margined tilt"></div>';
+        
+        var android = this.viewElement.querySelector('.sky.android');
+        var rect = android.getBoundingClientRect();
+        
+        android.classList.remove('half_margined');
+        android.style.top = rect.top + 'px';
+        android.style.left = rect.left + 'px';
+
+        this.dropAndroid();
+    };
+
+    this.dropAndroid = function() {
+        var android = this.viewElement.querySelector('.sky.android');
+        var intTop = parseInt(android.style.top);
+
+        if (intTop <= window.innerHeight - 64) {
+            android.style.top = (intTop + 5) + 'px';
+        }
+
+        requestAnimationFrame(this.dropAndroid.bind(this));
+    };
+
+    this.flapAndroid = function() {
+        var android = this.viewElement.querySelector('.sky.android');
+        var intTop = parseInt(android.style.top);
+
+        if (FLAP_START_COUNT > FLAP_MAX_STRENGTH) {
+            FLAP_START_COUNT = 0;
+            return;
+        }
+
+        android.classList.remove('tilt');
+        android.offsetWidth = android.offsetWidth;
+        android.classList.add('tilt');
+
+        if (intTop > 0) {
+            android.style.top = (intTop - 5) + 'px';
+        }
+
+        requestAnimationFrame(this.flapAndroid.bind(this));
+        FLAP_START_COUNT++;
+    };
+
+    this.act = function() {
+        if (!INITIALIZED) {
+            return false;
+        }
+
+        if (!ELEMENTS_INSERTED) {
+            this.insertAndroid();
+            this.insertPop();
+
+            this.viewElement.removeChild(
+                this.viewElement.querySelector('.instruction')
+            );
+
+            ELEMENTS_INSERTED = true;
+        }
+
+        this.flapAndroid();
+    };
+
+    this.viewElement.addEventListener('click', this.act.bind(this), false);
+    this.viewElement.addEventListener('keypress', this.act.bind(this), false);
 
 };
 
