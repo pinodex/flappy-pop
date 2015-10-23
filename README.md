@@ -7,4 +7,5 @@ http://raphaelmarco.me/flappy-pop/
 - [x] Clouds animation
 - [x] Lollipops animation
 - [x] Flying android
+- [ ] Collisons
 - [ ] Spriting
