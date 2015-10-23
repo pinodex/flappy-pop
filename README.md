@@ -1,10 +1,10 @@
-# Floppy Pop
+# Flappy Pop
 A game based on the Android Lollipop easter egg. *Under development*
 
-http://raphaelmarco.me/floppy-pop/
+http://raphaelmarco.me/flappy-pop/
 
 ## Development checklist
 - [x] Clouds animation
 - [x] Lollipops animation
-- [ ] Flying android
+- [x] Flying android
 - [ ] Spriting
