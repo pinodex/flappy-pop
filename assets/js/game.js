@@ -40,22 +40,18 @@ var FlappyPop = function(config) {
     this.stars = config.stars;
 
     this.init = function() {
+        if (!PRELOADED) {
+            this.viewElement.innerHTML = '<div class="preload">Loading assets...</div>';
+            Util.preloadImages(PRELOAD_IMAGES, this.initElements.bind(this));
+        }        
+    };
+
+    this.initElements = function() {
         if (INITIALIZED) {
             return;
         }
 
-        if (!PRELOADED) {
-            this.viewElement.innerHTML = '<div class="preload">Loading assets...</div>';
-
-            for (var i = 0; i < PRELOAD_IMAGES.length; i++) {
-                (new Image()).src = PRELOAD_IMAGES[i];
-
-                if (i == PRELOAD_IMAGES.length - 1) {
-                    PRELOADED = true;
-                    this.init();
-                }
-            };
-        }
+        PRELOADED = true;
 
         this.viewElement.innerHTML = '<div class="instruction">Click to start</div>';
 
@@ -70,7 +66,7 @@ var FlappyPop = function(config) {
         this.animatePops();
 
         INITIALIZED = true;
-    };
+    }
 
     this.initBg = function() {
         this.scene = Util.rand(1, 4);
@@ -334,6 +330,27 @@ var Util = {
 
     rand: function(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+
+    preloadImages: function(images, callback) {
+        var preloadedFiles = 0;
+        var imageObjects = [];
+        var tryCallback = function() {
+            if (preloadedFiles == images.length) {
+                callback();
+            }
+        }
+
+        for (var i = 0; i < images.length; i++) {
+            imageObjects[i] = new Image();
+
+            imageObjects[i].src = images[i];
+            imageObjects[i].onload = function() {
+                tryCallback();
+            };
+
+            preloadedFiles++;
+        };
     }
 
 }
