@@ -144,14 +144,32 @@ var FlappyPop = function(options) {
         this.preloadImages(function() {
             this.render();
 
+            var text = 'Press SPACE to start';
+
+            if (typeof window.orientation !== 'undefined') {
+                text = 'Touch to start';
+            }
+
             this.context.fillStyle = 'white';
             this.context.font = 'bold 20px sans-serif';
             this.context.textBaseline = 'middle'; 
             this.context.textAlign = 'center'; 
-            this.context.fillText('Press SPACE key to start', this.canvas.width / 2, this.canvas.height / 2);
+            this.context.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
 
             INITIALIZED = true;
         }.bind(this));
+
+        addEventListener('touchstart', function(e) {
+            if (!STARTED) {
+                this.start();
+            }
+
+            flap = true;
+        }.bind(this), false);
+
+        addEventListener('touchend', function(e) {
+            flap = false;
+        }.bind(this), false);
 
         addEventListener('keydown', function(e) {
             if (e.keyCode == 32) {
