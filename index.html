@@ -12,14 +12,13 @@
     <title>Flappy Pop</title>
 </head>
 <body>
-    <div id="game" tabindex="-1"></div>
+    <div id="game">Loading game assets...</div>
     
-    <script src="assets/js/game.js"></script>
+    <script src="assets/js/flappy-pop.js"></script>
     <script>
-        //(new FlappyPop('#id')).init();
         var flappyPop = new FlappyPop({
             element: '#game',
-            clouds: 15,
+            clouds: 10,
             stars: 10
         });
 
