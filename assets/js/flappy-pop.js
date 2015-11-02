@@ -73,6 +73,7 @@ var FlappyPop = function(options) {
 
     var INITIALIZED = false;
     var STARTED = false;
+    var STOPPED = false;
     var spawnAndroid = false;
     var flap = false;
 
@@ -177,6 +178,11 @@ var FlappyPop = function(options) {
                     this.start();
                 }
 
+                if (e.repeat) {
+                    flap = false;
+                    return;
+                }
+                
                 flap = true;
             }
         }.bind(this), false);
@@ -184,6 +190,46 @@ var FlappyPop = function(options) {
         addEventListener('keyup', function(e) {
             flap = false;
         }.bind(this), false);
+    };
+
+    this.loop = function() {
+        this.update();
+        this.checkCollisions();
+        this.render();
+
+        if (STOPPED) {
+            return;
+        }
+
+        requestAnimationFrame(this.loop.bind(this));
+    };
+
+    this.start = function() {
+        if (STOPPED) {
+            this.scene = SCENES[Object.keys(SCENES)[this.getRandomInt(0, 3)]];
+
+            this.stars = [];
+            this.clouds = [];
+
+            this.lollipops = [];
+            this.android = null;
+
+            STOPPED = false;
+        }
+
+        spawnAndroid = true;
+        
+        this.spawnLollipop();
+        this.loop();
+
+        STARTED = true;
+    };
+
+    this.stop = function() {
+        flap = false;
+
+        STOPPED = true;
+        STARTED = false;
     };
 
     this.render = function() {
@@ -282,11 +328,11 @@ var FlappyPop = function(options) {
         };
 
         for (var i = 0; i < this.lollipops.length; i++) {
-            if (this.lollipops[i].top.y <= this.lollipops[i].top.yIn) {
+            if (this.lollipops[i].top.y < this.lollipops[i].top.yIn) {
                 this.lollipops[i].top.y += 15;
             }
 
-            if (this.lollipops[i].bottom.y >= this.lollipops[i].bottom.yIn) {
+            if (this.lollipops[i].bottom.y > this.lollipops[i].bottom.yIn) {
                 this.lollipops[i].bottom.y -= 15;
             }
 
@@ -299,27 +345,6 @@ var FlappyPop = function(options) {
             if (this.lollipops[i].gX < -PROPS.lollipop.size) {
                 this.lollipops.splice(i, 1);
             }
-
-            /*
-            if (this.android) {
-                if (
-                    this.android.x >= this.lollipops[i].top.x &&
-                    this.android.x <= (this.lollipops[i].top.x + PROPS.lollipop.size) &&
-                    this.android.y >= this.lollipops[i].top.y &&
-                    this.android.y <= (this.lollipops[i].top.y + PROPS.lollipop.size)
-                ) {
-                    console.log('touch x');
-                }
-            }
-
-            if (this.android && this.android.x <= this.lollipops[i].top.x && this.android.y <= this.lollipops[i].top.y) {
-                console.log('touch top');
-            }
-
-            if (this.android && this.android.x <= this.lollipops[i].bottom.x && this.android.y <= this.lollipops[i].bottom.y) {
-                console.log('touch bottom');
-            }
-            */
         };
 
         if (this.android) {
@@ -333,24 +358,39 @@ var FlappyPop = function(options) {
         }
     };
 
-    this.loop = function() {
-        this.update();
-        this.render();
+    this.checkCollisions = function() {
+        if (!this.android) {
+            return false;
+        }
 
-        requestAnimationFrame(this.loop.bind(this));
-    };
+        var lollipopRadius = PROPS.lollipop.size / 2;
 
-    this.start = function() {
-        spawnAndroid = true;
-        
-        this.spawnLollipop();
-        this.loop();
+        for (var i = 0; i < this.lollipops.length; i++) {
+            var popX = {
+                start: this.lollipops[i].gX,
+                end: this.lollipops[i].gX + PROPS.lollipop.size
+            };
 
-        STARTED = true;
-    };
+            var topPopY = {
+                start: this.lollipops[i].top.y,
+                end: this.lollipops[i].top.y + PROPS.lollipop.size
+            };
 
-    this.stop = function() {
+            var bottomPopY = {
+                start: this.lollipops[i].bottom.y,
+                end: this.lollipops[i].bottom.y + PROPS.lollipop.size
+            };
 
-    };
+            var xCollide = this.android.x >= popX.start && this.android.x <= popX.end;
+            var yTopCollide = this.android.y >= topPopY.start && this.android.y <= topPopY.end;
+            var yBottomCollide = this.android.y >= bottomPopY.start && this.android.y <= bottomPopY.end;
+
+            if ((xCollide && yTopCollide) || (xCollide && yBottomCollide)) {
+                this.stop();
+            }
+        };
+
+        //return false;
+    }
 
 };
