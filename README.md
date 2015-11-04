@@ -7,5 +7,5 @@ http://raphaelmarco.me/flappy-pop/
 - [x] Clouds animation
 - [x] Lollipops animation
 - [x] Flying android
-- [ ] Collision detection
+- [x] Collision detection (partial)
 - [ ] Spriting
