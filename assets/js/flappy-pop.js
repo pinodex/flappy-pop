@@ -95,10 +95,6 @@ var FlappyPop = function(options) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
-    this.radians = function(degree) {
-        return degree * (Math.PI / 180);
-    }
-
     this.preloadImages =  function(callback) {
         var preloadedFiles = 0;
         var imagesKeys = Object.keys(IMAGES);
@@ -163,6 +159,11 @@ var FlappyPop = function(options) {
         addEventListener('touchstart', function(e) {
             if (!STARTED) {
                 this.start();
+            }
+
+            if (e.repeat) {
+                flap = false;
+                return;
             }
 
             flap = true;
@@ -282,8 +283,10 @@ var FlappyPop = function(options) {
             var Aa = this.android ? this.android.a : 0;
 
             this.context.save();
-            this.context.rotate(this.radians(Aa));
-            this.context.drawImage(IMAGES['android'], Ax, Ay, 48, 48);
+            this.context.translate(Ax, Ay);
+            this.context.rotate(Aa * (Math.PI / 180));
+            this.context.translate(-24, -24);
+            this.context.drawImage(IMAGES['android'], -24, -24, 48, 48);
             this.context.restore();
 
             this.android = {
@@ -352,8 +355,13 @@ var FlappyPop = function(options) {
                 this.android.y += PROPS.android.velocity;
             }
 
+            if (this.android.a <= 180) {
+                this.android.a += 5/2;
+            }
+
             if (flap && this.android.y > 0) {
                 this.android.y -= PROPS.android.velocity * 3;
+                this.android.a = 45;
             }
         }
     };
@@ -363,7 +371,9 @@ var FlappyPop = function(options) {
             return false;
         }
 
-        var lollipopRadius = PROPS.lollipop.size / 2;
+        if (this.android.y <= 0 || this.android.y + 48 >= this.canvas.height) {
+            this.stop()
+        }
 
         for (var i = 0; i < this.lollipops.length; i++) {
             var popX = {
@@ -389,8 +399,6 @@ var FlappyPop = function(options) {
                 this.stop();
             }
         };
-
-        //return false;
-    }
+    };
 
 };
