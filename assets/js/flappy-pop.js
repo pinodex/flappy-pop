@@ -58,7 +58,7 @@ var FlappyPop = function(options) {
             velocity: 7
         }
     };
-    
+
     var spawnAndroid = false;
     var flap = false;
 
@@ -373,7 +373,7 @@ var FlappyPop = function(options) {
         };
 
         if (this.android) {
-            if (this.android.y < this.canvas.height - 48) {
+            if (this.android.y < this.canvas.height - 48 && !flap) {
                 this.android.y += properties.android.velocity;
             }
 
@@ -382,7 +382,7 @@ var FlappyPop = function(options) {
             }
 
             if (flap && this.android.y > 0) {
-                this.android.y -= properties.android.velocity * 3;
+                this.android.y -= properties.android.velocity;
                 this.android.a = 45;
             }
         }
