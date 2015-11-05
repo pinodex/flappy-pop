@@ -1,0 +1,94 @@
+{
+
+    "android": {
+        "x": 1108,
+        "y": 2,
+        "width": 48,
+        "height": 48
+    },
+
+    "cloud": {
+        "x": 716,
+        "y": 2,
+        "width": 96,
+        "height": 96
+    },
+
+    "moon": {
+        "x": 814,
+        "y": 2,
+        "width": 96,
+        "height": 96
+    },
+
+    "pop_belt": {
+        "x": 2,
+        "y": 2,
+        "width": 100,
+        "height": 100
+    },
+
+    "pop_droid": {
+        "x": 104,
+        "y": 2,
+        "width": 100,
+        "height": 100
+    },
+
+    "pop_pizza": {
+        "x": 206,
+        "y": 2,
+        "width": 100,
+        "height": 100
+    },
+
+    "pop_stripes": {
+        "x": 308,
+        "y": 2,
+        "width": 100,
+        "height": 100
+    },
+
+    "pop_swirl": {
+        "x": 410,
+        "y": 2,
+        "width": 100,
+        "height": 100
+    },
+
+    "pop_vortex": {
+        "x": 512,
+        "y": 2,
+        "width": 100,
+        "height": 100
+    },
+
+    "pop_vortex2": {
+        "x": 614,
+        "y": 2,
+        "width": 100,
+        "height": 100
+    },
+
+    "star": {
+        "x": 912,
+        "y": 2,
+        "width": 96,
+        "height": 96
+    },
+
+    "stick": {
+        "x": 1108,
+        "y": 52,
+        "width": 20,
+        "height": 20
+    },
+
+    "sun": {
+        "x": 1010,
+        "y": 2,
+        "width": 96,
+        "height": 96
+    }
+
+}

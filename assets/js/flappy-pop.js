@@ -7,22 +7,6 @@
 
 var FlappyPop = function(options) {
 
-    var IMAGES = {
-        android:        'assets/img/android.png',
-        cloud:          'assets/img/cloud.png',
-        moon:           'assets/img/moon.png',
-        pop_belt:       'assets/img/pop_belt.png',
-        pop_droid:      'assets/img/pop_droid.png',
-        pop_pizza:      'assets/img/pop_pizza.png',
-        pop_stripes:    'assets/img/pop_stripes.png',
-        pop_swirl:      'assets/img/pop_swirl.png',
-        pop_vortex:     'assets/img/pop_vortex.png',
-        pop_vortex2:    'assets/img/pop_vortex2.png',
-        star:           'assets/img/star.png',
-        sun:            'assets/img/sun.png',
-        stick:          'assets/img/stick.png'
-    };
-
     var POPS = ['belt', 'droid', 'pizza', 'stripes', 'swirl', 'vortex', 'vortex2'];
     var ROTATING_POPS = ['pizza', 'swirl', 'vortex', 'vortex2'];
     var SCENES = {
@@ -61,19 +45,20 @@ var FlappyPop = function(options) {
         }
     };
 
-    var PROPS = {
-        android: {
-            velocity: 7
-        },
+    var initialized = false;
+    var started = false;
+    var stopped = false;
+
+    var properties = {
         lollipop: {
             size: 100,
             space: 200
+        },
+        android: {
+            velocity: 7
         }
     };
-
-    var INITIALIZED = false;
-    var STARTED = false;
-    var STOPPED = false;
+    
     var spawnAndroid = false;
     var flap = false;
 
@@ -82,6 +67,11 @@ var FlappyPop = function(options) {
     this.element = null;
     this.canvas = null;
     this.context = null;
+
+    this.spritesheet = {
+        data: null,
+        image: null
+    };
 
     this.scene = null;
 
@@ -95,28 +85,58 @@ var FlappyPop = function(options) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
-    this.preloadImages =  function(callback) {
-        var preloadedFiles = 0;
-        var imagesKeys = Object.keys(IMAGES);
+    this.loadSpritesheet =  function(callback) {
+        if (!this.spritesheet.data) {
+            var xhr = new XMLHttpRequest();
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    if (xhr.status !== 200) {
+                        alert('An error occurred while loading game resources');
+                        return;
+                    }
 
-        for (var i = 0; i < imagesKeys.length; i++) {
-            var resource = IMAGES[imagesKeys[i]];
+                    this.spritesheet.data = JSON.parse(xhr.responseText);
+                    
+                    if (this.spritesheet.image) {
+                        callback();
+                    }
+                }
+            }.bind(this);
 
-            IMAGES[imagesKeys[i]] = new Image();
-            IMAGES[imagesKeys[i]].onload = function() {
-                preloadedFiles++;
+            xhr.open('GET', this.options.spritesheet.data, true);
+            xhr.send();
+        }
+
+        if (!this.spritesheet.image) {
+            var image = new Image();
+
+            image.src = this.options.spritesheet.image;
+            image.onload = function() {
+                this.spritesheet.image = image;
                 
-                if (preloadedFiles == imagesKeys.length) {
+                if (this.spritesheet.data) {
                     callback();
                 }
-            };
-
-            IMAGES[imagesKeys[i]].src = resource;
-        };
+            }.bind(this);
+        }
     };
 
+    this.drawImageFromSprite = function(key, x, y, height, width) {
+        var imageData = this.spritesheet.data[key];
+
+        this.context.drawImage(
+            this.spritesheet.image,
+            imageData.x,
+            imageData.y,
+            imageData.width,
+            imageData.height,
+            x, y, height, width
+        );
+    }
+
     this.init = function() {
-        if (INITIALIZED) {
+        if (initialized) {
             console.warn('Game already initialized');
             return;
         }
@@ -138,7 +158,7 @@ var FlappyPop = function(options) {
 
         this.scene = SCENES[Object.keys(SCENES)[this.getRandomInt(0, 3)]];
 
-        this.preloadImages(function() {
+        this.loadSpritesheet(function() {
             this.render();
 
             var text = 'Press SPACE to start';
@@ -153,11 +173,11 @@ var FlappyPop = function(options) {
             this.context.textAlign = 'center'; 
             this.context.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
 
-            INITIALIZED = true;
+            initialized = true;
         }.bind(this));
 
         addEventListener('touchstart', function(e) {
-            if (!STARTED) {
+            if (!started) {
                 this.start();
             }
 
@@ -175,7 +195,7 @@ var FlappyPop = function(options) {
 
         addEventListener('keydown', function(e) {
             if (e.keyCode == 32) {
-                if (!STARTED) {
+                if (!started) {
                     this.start();
                 }
 
@@ -198,7 +218,7 @@ var FlappyPop = function(options) {
         this.checkCollisions();
         this.render();
 
-        if (STOPPED) {
+        if (stopped) {
             return;
         }
 
@@ -206,7 +226,7 @@ var FlappyPop = function(options) {
     };
 
     this.start = function() {
-        if (STOPPED) {
+        if (stopped) {
             this.scene = SCENES[Object.keys(SCENES)[this.getRandomInt(0, 3)]];
 
             this.stars = [];
@@ -215,7 +235,7 @@ var FlappyPop = function(options) {
             this.lollipops = [];
             this.android = null;
 
-            STOPPED = false;
+            stopped = false;
         }
 
         spawnAndroid = true;
@@ -223,14 +243,14 @@ var FlappyPop = function(options) {
         this.spawnLollipop();
         this.loop();
 
-        STARTED = true;
+        started = true;
     };
 
     this.stop = function() {
         flap = false;
 
-        STOPPED = true;
-        STARTED = false;
+        stopped = true;
+        started = false;
     };
 
     this.render = function() {
@@ -251,7 +271,7 @@ var FlappyPop = function(options) {
             var x = this.stars[i] ? this.stars[i][0] : this.getRandomInt(0, this.canvas.width);
             var y = this.stars[i] ? this.stars[i][1] : this.getRandomInt(0, this.canvas.height);
 
-            this.context.drawImage(IMAGES['star'], x, y, 10, 10);
+            this.drawImageFromSprite('star', x, y, 10, 10);
             this.stars.push([x, y]);
         };
 
@@ -261,22 +281,23 @@ var FlappyPop = function(options) {
             var y = this.clouds[i] ? this.clouds[i][1] : this.getRandomInt(0, this.canvas.height);
             var size = this.clouds[i] ? this.clouds[i][2] : this.getRandomInt(36, 96);
 
-            this.context.drawImage(IMAGES['cloud'], x, y, size, size);
+            this.drawImageFromSprite('cloud', x, y, size, size);
             this.clouds.push([x, y, size]);
         };
 
         // Lollipops
         for (var i = 0; i < this.lollipops.length; i++) {
             var lollipop = this.lollipops[i];
-            var stickX = lollipop.gX + (PROPS.lollipop.size / 2) - 7.5;
+            var stickX = lollipop.gX + (properties.lollipop.size / 2) - 7.5;
 
-            this.context.drawImage(IMAGES['stick'], stickX, 0, 15, lollipop.top.y + 5);
-            this.context.drawImage(IMAGES['stick'], stickX, lollipop.bottom.y + PROPS.lollipop.size - 5, 15, this.canvas.height - lollipop.bottom.y - PROPS.lollipop.size + 5);
+            this.drawImageFromSprite('stick', stickX, 0, 15, lollipop.top.y + 5);
+            this.drawImageFromSprite('stick', stickX, lollipop.bottom.y + properties.lollipop.size - 5, 15, this.canvas.height - lollipop.bottom.y - properties.lollipop.size + 5);
 
-            this.context.drawImage(IMAGES['pop_' + lollipop.top.type], lollipop.gX, lollipop.top.y, PROPS.lollipop.size, PROPS.lollipop.size);
-            this.context.drawImage(IMAGES['pop_' + lollipop.bottom.type], lollipop.gX, lollipop.bottom.y, PROPS.lollipop.size, PROPS.lollipop.size);
+            this.drawImageFromSprite('pop_' + lollipop.top.type, lollipop.gX, lollipop.top.y, properties.lollipop.size, properties.lollipop.size);
+            this.drawImageFromSprite('pop_' + lollipop.bottom.type, lollipop.gX, lollipop.bottom.y, properties.lollipop.size, properties.lollipop.size);
         };
 
+        // Android
         if (spawnAndroid) {
             var Ax = this.android ? this.android.x : (this.canvas.width / 2) - 24;
             var Ay = this.android ? this.android.y : (this.canvas.height / 2) - 24;
@@ -286,9 +307,10 @@ var FlappyPop = function(options) {
             this.context.translate(Ax, Ay);
             this.context.rotate(Aa * (Math.PI / 180));
             this.context.translate(-24, -24);
-            this.context.drawImage(IMAGES['android'], -24, -24, 48, 48);
-            this.context.restore();
 
+            this.drawImageFromSprite('android', -24, -24, 48, 48);
+
+            this.context.restore();
             this.android = {
                 x: Ax,
                 y: Ay,
@@ -308,13 +330,13 @@ var FlappyPop = function(options) {
 
         lollipop.top = lollipop.top || {
             y: -100,
-            yIn: this.getRandomInt(0, this.canvas.height - ((PROPS.lollipop.size * 2) + PROPS.lollipop.space)),
+            yIn: this.getRandomInt(0, this.canvas.height - ((properties.lollipop.size * 2) + properties.lollipop.space)),
             type: POPS[this.getRandomInt(0, POPS.length - 1)]
         };
         
         lollipop.bottom = lollipop.bottom || {
             y: this.canvas.height + 100,
-            yIn: lollipop.top.yIn + PROPS.lollipop.size + PROPS.lollipop.space,
+            yIn: lollipop.top.yIn + properties.lollipop.size + properties.lollipop.space,
             type: POPS[this.getRandomInt(0, POPS.length - 1)]
         };
 
@@ -341,18 +363,18 @@ var FlappyPop = function(options) {
 
             this.lollipops[i].gX -= this.canvas.width / 200;
 
-            if (this.lollipops[i].gX < PROPS.lollipop.size / 2) {
+            if (this.lollipops[i].gX < properties.lollipop.size / 2) {
                 this.spawnLollipop();
             }
 
-            if (this.lollipops[i].gX < -PROPS.lollipop.size) {
+            if (this.lollipops[i].gX < -properties.lollipop.size) {
                 this.lollipops.splice(i, 1);
             }
         };
 
         if (this.android) {
             if (this.android.y < this.canvas.height - 48) {
-                this.android.y += PROPS.android.velocity;
+                this.android.y += properties.android.velocity;
             }
 
             if (this.android.a <= 180) {
@@ -360,7 +382,7 @@ var FlappyPop = function(options) {
             }
 
             if (flap && this.android.y > 0) {
-                this.android.y -= PROPS.android.velocity * 3;
+                this.android.y -= properties.android.velocity * 3;
                 this.android.a = 45;
             }
         }
@@ -378,17 +400,17 @@ var FlappyPop = function(options) {
         for (var i = 0; i < this.lollipops.length; i++) {
             var popX = {
                 start: this.lollipops[i].gX,
-                end: this.lollipops[i].gX + PROPS.lollipop.size
+                end: this.lollipops[i].gX + properties.lollipop.size
             };
 
             var topPopY = {
                 start: this.lollipops[i].top.y,
-                end: this.lollipops[i].top.y + PROPS.lollipop.size
+                end: this.lollipops[i].top.y + properties.lollipop.size
             };
 
             var bottomPopY = {
                 start: this.lollipops[i].bottom.y,
-                end: this.lollipops[i].bottom.y + PROPS.lollipop.size
+                end: this.lollipops[i].bottom.y + properties.lollipop.size
             };
 
             var xCollide = this.android.x >= popX.start && this.android.x <= popX.end;

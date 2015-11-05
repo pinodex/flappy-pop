@@ -20,7 +20,11 @@
         var flappyPop = new FlappyPop({
             element: '#game',
             clouds: 10,
-            stars: 10
+            stars: 10,
+            spritesheet: {
+                data: 'assets/spritesheet.json',
+                image: 'assets/img/spritesheet.png'
+            }
         });
 
         flappyPop.init();

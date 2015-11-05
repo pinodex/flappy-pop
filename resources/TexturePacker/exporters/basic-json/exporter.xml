@@ -1,0 +1,18 @@
+<exporter version="1.0">
+    <name>basic-json</name>
+    <displayName>Basic JSON</displayName>
+    <description>Basic JSON file format</description>
+    <version>1.0</version>
+    <files>
+        <file>
+            <name>json</name>
+            <displayName>JSON</displayName>
+            <fileExtension>json</fileExtension>
+            <template>template.txt</template>
+        </file>
+    </files>
+    <supportsTrimming>false</supportsTrimming>
+    <supportsRotation>false</supportsRotation>
+    <supportsNPOT>true</supportsNPOT>
+    <supportsPivotPoint>false</supportsPivotPoint>
+</exporter>

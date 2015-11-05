@@ -8,4 +8,5 @@ http://raphaelmarco.me/flappy-pop/
 - [x] Lollipops animation
 - [x] Flying android
 - [x] Collision detection (partial)
-- [ ] Spriting
+- [x] Spriting
+- [ ] Reduce 'crapiness'
